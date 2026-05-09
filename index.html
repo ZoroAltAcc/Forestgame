@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#131b14" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>CozyWood: Survival Chronicles</title>
+    <!-- Custom embedded SVG Favicon inspired by stylized pine trees -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231b2b20'/><path d='M50 10 L85 50 L65 50 L90 80 L10 80 L35 50 L15 50 Z' fill='%233a7d44'/><rect x='43' y='80' width='14' height='15' fill='%235c4033'/></svg>" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231b2b20'/><path d='M50 10 L85 50 L65 50 L90 80 L10 80 L35 50 L15 50 Z' fill='%233a7d44'/><rect x='43' y='80' width='14' height='15' fill='%235c4033'/></svg>" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #0b120c;
+        overflow: hidden;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
+      /* Prevent pull to refresh and elastic scrolling */
+      html, body {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" style="width: 100%; height: 100%;"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
