@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { GameConfig } from '../game/GameEngine';
-import { TreePine, Flame, CloudRain, ShieldAlert, Sparkles, Play, Compass, Volume2 } from 'lucide-react';
+import { TreePine, Swords, CloudRain, Volume2, Monitor, Clock, ChevronRight, Sparkles } from 'lucide-react';
 
 interface TitleScreenProps {
   config: GameConfig;
-  onUpdateConfig: (newConfig: Partial<GameConfig>) => void;
+  onUpdateConfig: (cfg: Partial<GameConfig>) => void;
   onStartGame: () => void;
 }
 
@@ -13,225 +13,301 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
   onUpdateConfig,
   onStartGame
 }) => {
-  const [worldSeedName, setWorldSeedName] = useState('Cozy Forest Delta');
   const [soundVolume, setSoundVolume] = useState(80);
+  const [activeTab, setActiveTab] = useState<'world' | 'settings'>('world');
+
+  const difficultyInfo: Record<string, { icon: string; desc: string; color: string }> = {
+    peaceful: { icon: '🌿', desc: 'No enemies, pure exploration', color: 'emerald' },
+    normal: { icon: '⚔️', desc: 'Balanced survival challenge', color: 'amber' },
+    hard: { icon: '💀', desc: 'Ruthless enemies, scarce resources', color: 'red' },
+  };
 
   return (
-    <div className="absolute inset-0 bg-[#0d1611] text-stone-100 flex flex-col justify-between overflow-y-auto p-4 md:p-8 select-none z-50 font-sans">
-      {/* Top Atmosphere Bar */}
-      <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 border-b border-stone-800 pb-4 pt-2">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-800 to-stone-900 flex items-center justify-center border border-emerald-600 shadow-lg shadow-emerald-950">
-            <TreePine className="w-8 h-8 text-emerald-400 animate-pulse" />
+    <div className="absolute inset-0 z-50 flex flex-col overflow-hidden">
+      {/* Animated dark forest background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#060d08] via-[#0a1a0e] to-[#040806]" />
+      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_30%_20%,rgba(16,185,129,0.15),transparent_60%),radial-gradient(ellipse_at_70%_80%,rgba(245,158,11,0.1),transparent_60%)]" />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col h-full">
+
+        {/* Hero Header */}
+        <div className="safe-top px-5 pt-6 pb-4 md:pt-10 md:pb-6 text-center animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/30 border border-emerald-800/40 text-emerald-400 text-xs mb-3">
+            <Sparkles className="w-3 h-3" />
+            <span>Low-Poly 3D Browser Game</span>
           </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black tracking-wider bg-gradient-to-r from-emerald-400 via-amber-200 to-stone-300 bg-clip-text text-transparent">
-              COZYWOOD: SURVIVAL
-            </h1>
-            <p className="text-xs text-emerald-500/80 tracking-widest uppercase font-semibold">
-              Low-Poly Stylized Procedural Universe
-            </p>
-          </div>
-        </div>
-
-        {/* Browser install reminder badge */}
-        <div className="bg-stone-900/90 border border-stone-700/60 px-3 py-1.5 rounded-lg text-[11px] text-stone-300 flex items-center gap-2 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-          <span>Add to Home Screen for fullscreen native app immersion</span>
-        </div>
-      </div>
-
-      {/* Center Options Panel */}
-      <div className="w-full max-w-4xl mx-auto my-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        
-        {/* Left Column: World Setup & Narrative Storytelling */}
-        <div className="bg-stone-900/60 backdrop-blur-md border border-stone-800/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
-          <div>
-            <div className="flex items-center gap-2 text-amber-400 mb-2 font-bold tracking-wide text-sm">
-              <Compass className="w-4 h-4" />
-              <span>IMMERSIVE WORLD BUILDER</span>
-            </div>
-            
-            <p className="text-xs text-stone-300 leading-relaxed mb-4">
-              You awaken stranded in an ancient cozy forest filled with heavy rainfall, winding flowing rivers, high cliffs, and mysterious glowing relics. Break trees, collect wood and stone, build axes and furnaces, cook wild hunted meat, and survive the crawling nighttime threats!
-            </p>
-
-            {/* Custom World Name */}
-            <div className="mb-4">
-              <label className="block text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1">
-                World Identity
-              </label>
-              <input 
-                type="text" 
-                value={worldSeedName}
-                onChange={(e) => setWorldSeedName(e.target.value)}
-                maxLength={24}
-                className="w-full bg-stone-950 border border-stone-700 rounded-lg px-3 py-2 text-sm text-emerald-300 font-mono outline-none focus:border-emerald-500 transition-colors" 
-              />
-            </div>
-
-            {/* Difficulty Option */}
-            <div className="mb-4">
-              <label className="block text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1">
-                Wilderness Difficulty
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['peaceful', 'normal', 'hard'] as const).map(diff => (
-                  <button
-                    key={diff}
-                    onClick={() => onUpdateConfig({ difficulty: diff })}
-                    className={`py-2 rounded-lg text-xs font-bold capitalize border transition-all ${
-                      config.difficulty === diff 
-                        ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-sm' 
-                        : 'bg-stone-950/60 border-stone-800 text-stone-500 hover:border-stone-700'
-                    }`}
-                  >
-                    {diff}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Rain Intensity Adjuster */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-[11px] uppercase tracking-wider text-stone-400 font-bold flex items-center gap-1">
-                  <CloudRain className="w-3 h-3 text-cyan-400" />
-                  <span>Rainfall & Storm Shaders</span>
-                </label>
-                <span className="text-xs font-mono text-cyan-300">{Math.round(config.rainIntensity * 100)}%</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.1" 
-                value={config.rainIntensity} 
-                onChange={(e) => onUpdateConfig({ rainIntensity: parseFloat(e.target.value) })}
-                className="w-full accent-cyan-400 bg-stone-950 h-2 rounded-lg cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-stone-500 mt-1">
-                <span>Clear Sky</span>
-                <span>Cozy Mist</span>
-                <span>Heavy Torrent</span>
-              </div>
-            </div>
-
-          </div>
-
-          <div className="mt-6 bg-emerald-950/40 border border-emerald-900/50 rounded-xl p-3 text-xs text-emerald-300 flex items-start gap-2">
-            <Sparkles className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-            <span>
-              Features high quality mobile-optimized water flow shaders, wet terrain specular highlights, wind-reactive foliage, and 3D positional Web Audio.
+          <h1 className="text-3xl md:text-5xl font-black tracking-tight">
+            <span className="bg-gradient-to-r from-emerald-300 via-green-200 to-emerald-400 bg-clip-text text-transparent">
+              CozyWood
             </span>
+          </h1>
+          <p className="text-stone-500 text-sm md:text-base mt-1 font-medium tracking-wide">
+            SURVIVAL CHRONICLES
+          </p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="px-5 mb-3 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="flex bg-stone-900/60 rounded-2xl p-1 border border-stone-800/50 max-w-md mx-auto">
+            <button
+              onClick={() => setActiveTab('world')}
+              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+                activeTab === 'world'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
+                  : 'text-stone-400 hover:text-stone-300'
+              }`}
+            >
+              <TreePine className="w-4 h-4" />
+              World
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+                activeTab === 'settings'
+                  ? 'bg-stone-700 text-white shadow-lg shadow-stone-900/40'
+                  : 'text-stone-400 hover:text-stone-300'
+              }`}
+            >
+              <Monitor className="w-4 h-4" />
+              Settings
+            </button>
           </div>
         </div>
 
-        {/* Right Column: Hardware Customization & Launch */}
-        <div className="bg-stone-900/60 backdrop-blur-md border border-stone-800/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
-          <div>
-            <div className="flex items-center gap-2 text-emerald-400 mb-2 font-bold tracking-wide text-sm">
-              <ShieldAlert className="w-4 h-4" />
-              <span>BROWSER COMPATIBILITY TUNING</span>
-            </div>
+        {/* Scrollable Card Content */}
+        <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-4">
+          <div className="max-w-md mx-auto space-y-4 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
 
-            <p className="text-xs text-stone-400 mb-4">
-              Configure rendering targets to match your smartphone GPU or desktop browser speed. Fully supports Safari, Chrome, and iOS Web Apps.
+            {activeTab === 'world' ? (
+              <>
+                {/* Story Card */}
+                <div className="relative rounded-2xl overflow-hidden border border-stone-800/40">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/80 to-stone-950/90" />
+                  <div className="relative p-4">
+                    <p className="text-sm text-stone-300 leading-relaxed">
+                      You awaken in an ancient forest — heavy rain patters through towering canopies,
+                      a winding river cuts through the valley, and mysterious crystals pulse in the distance.
+                      <span className="text-emerald-400 font-medium"> Gather, craft, build, and survive the night.</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Difficulty Selection */}
+                <div>
+                  <label className="flex items-center gap-2 text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2.5 px-1">
+                    <Swords className="w-3.5 h-3.5" />
+                    Difficulty
+                  </label>
+                  <div className="space-y-2">
+                    {(['peaceful', 'normal', 'hard'] as const).map(diff => {
+                      const info = difficultyInfo[diff];
+                      const selected = config.difficulty === diff;
+                      return (
+                        <button
+                          key={diff}
+                          onClick={() => onUpdateConfig({ difficulty: diff })}
+                          className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 active:scale-[0.98] ${
+                            selected
+                              ? 'bg-emerald-900/40 border-emerald-600/60 shadow-lg shadow-emerald-900/20'
+                              : 'bg-stone-900/40 border-stone-800/40 hover:border-stone-700'
+                          }`}
+                        >
+                          <span className="text-xl">{info.icon}</span>
+                          <div className="flex-1 text-left">
+                            <p className={`text-sm font-semibold ${selected ? 'text-emerald-300' : 'text-stone-300'}`}>
+                              {diff.charAt(0).toUpperCase() + diff.slice(1)}
+                            </p>
+                            <p className="text-xs text-stone-500">{info.desc}</p>
+                          </div>
+                          {selected && (
+                            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-full bg-white" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Rain Intensity */}
+                <div className="bg-stone-900/40 rounded-2xl p-4 border border-stone-800/40">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                      <CloudRain className="w-3.5 h-3.5 text-cyan-400" />
+                      Rainfall
+                    </label>
+                    <span className="text-sm font-bold text-cyan-400">
+                      {Math.round(config.rainIntensity * 100)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={config.rainIntensity}
+                    onChange={(e) => onUpdateConfig({ rainIntensity: parseFloat(e.target.value) })}
+                    className="w-full bg-stone-800 rounded-full cursor-pointer accent-cyan-400"
+                  />
+                  <div className="flex justify-between text-xs text-stone-600 mt-2">
+                    <span>☀️ Clear</span>
+                    <span>🌦️ Drizzle</span>
+                    <span>⛈️ Storm</span>
+                  </div>
+                </div>
+
+                {/* Day Speed */}
+                <div className="bg-stone-900/40 rounded-2xl p-4 border border-stone-800/40">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">
+                    <Clock className="w-3.5 h-3.5 text-purple-400" />
+                    Day/Night Speed
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { val: 0.5, label: 'Slow', sub: '0.5×' },
+                      { val: 1.0, label: 'Normal', sub: '1×' },
+                      { val: 2.0, label: 'Fast', sub: '2×' },
+                    ].map(opt => (
+                      <button
+                        key={opt.val}
+                        onClick={() => onUpdateConfig({ daySpeed: opt.val })}
+                        className={`py-2.5 rounded-xl text-center transition-all duration-200 active:scale-95 ${
+                          config.daySpeed === opt.val
+                            ? 'bg-purple-600/80 border border-purple-500/60 text-white shadow-lg shadow-purple-900/30'
+                            : 'bg-stone-800/60 border border-stone-700/40 text-stone-400 hover:text-stone-300'
+                        }`}
+                      >
+                        <p className="text-sm font-semibold">{opt.label}</p>
+                        <p className="text-xs opacity-70">{opt.sub}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Graphics Quality */}
+                <div className="bg-stone-900/40 rounded-2xl p-4 border border-stone-800/40">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">
+                    <Monitor className="w-3.5 h-3.5 text-amber-400" />
+                    Graphics Quality
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { val: 'low' as const, label: 'Low', desc: 'Best FPS', icon: '⚡' },
+                      { val: 'medium' as const, label: 'Medium', desc: 'Balanced', icon: '✨' },
+                      { val: 'high' as const, label: 'High', desc: 'Best look', icon: '💎' },
+                    ]).map(opt => (
+                      <button
+                        key={opt.val}
+                        onClick={() => onUpdateConfig({ graphicsQuality: opt.val })}
+                        className={`py-3 rounded-xl text-center transition-all duration-200 active:scale-95 ${
+                          config.graphicsQuality === opt.val
+                            ? 'bg-amber-600/80 border border-amber-500/60 text-white shadow-lg shadow-amber-900/30'
+                            : 'bg-stone-800/60 border border-stone-700/40 text-stone-400 hover:text-stone-300'
+                        }`}
+                      >
+                        <p className="text-lg mb-0.5">{opt.icon}</p>
+                        <p className="text-sm font-semibold">{opt.label}</p>
+                        <p className="text-xs opacity-60">{opt.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Audio Volume */}
+                <div className="bg-stone-900/40 rounded-2xl p-4 border border-stone-800/40">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                      <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+                      Sound Volume
+                    </label>
+                    <span className="text-sm font-bold text-amber-400">{soundVolume}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={soundVolume}
+                    onChange={(e) => setSoundVolume(parseInt(e.target.value))}
+                    className="w-full bg-stone-800 rounded-full cursor-pointer accent-amber-400"
+                  />
+                  <p className="text-xs text-stone-600 mt-2">
+                    Procedurally synthesized — no files to download
+                  </p>
+                </div>
+
+                {/* Controls Info */}
+                <div className="bg-stone-900/40 rounded-2xl p-4 border border-stone-800/40">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">
+                    🎮 Controls
+                  </label>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="w-20 text-right">
+                        <kbd className="px-1.5 py-0.5 bg-stone-800 rounded text-xs text-stone-300 font-mono">WASD</kbd>
+                      </span>
+                      <span className="text-stone-400">Move character</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="w-20 text-right">
+                        <kbd className="px-1.5 py-0.5 bg-stone-800 rounded text-xs text-stone-300 font-mono">Mouse</kbd>
+                      </span>
+                      <span className="text-stone-400">Rotate camera (click to lock)</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="w-20 text-right">
+                        <kbd className="px-1.5 py-0.5 bg-stone-800 rounded text-xs text-stone-300 font-mono">Space</kbd>
+                      </span>
+                      <span className="text-stone-400">Action / Attack</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="w-20 text-right">
+                        <kbd className="px-1.5 py-0.5 bg-stone-800 rounded text-xs text-stone-300 font-mono">1 2 3</kbd>
+                      </span>
+                      <span className="text-stone-400">Equip tools</span>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-stone-800/50">
+                    <p className="text-xs text-stone-500">
+                      📱 Mobile: Use on-screen joystick and action buttons
+                    </p>
+                  </div>
+                </div>
+
+                {/* About */}
+                <div className="bg-stone-900/40 rounded-2xl p-4 border border-stone-800/40">
+                  <p className="text-xs text-stone-500 leading-relaxed text-center">
+                    Fully procedural world • Custom shaders • Web Audio synthesis
+                    <br />
+                    No downloads required • Works offline after first load
+                  </p>
+                </div>
+              </>
+            )}
+
+          </div>
+        </div>
+
+        {/* Fixed Bottom Play Button */}
+        <div className="safe-bottom px-5 pt-3 pb-4 bg-gradient-to-t from-[#060d08] via-[#060d08]/95 to-transparent">
+          <div className="max-w-md mx-auto">
+            <button
+              onClick={onStartGame}
+              className="animate-pulse-glow w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-600 text-white text-lg font-bold rounded-2xl active:scale-[0.97] transition-transform shadow-2xl shadow-emerald-900/50"
+            >
+              <span>Enter the Forest</span>
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <p className="text-center text-xs text-stone-600 mt-2">
+              Tap to begin your survival adventure
             </p>
-
-            {/* Graphics Preset */}
-            <div className="mb-4">
-              <label className="block text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1">
-                Graphics Quality & Shadows
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['low', 'medium', 'high'] as const).map(quality => (
-                  <button
-                    key={quality}
-                    onClick={() => onUpdateConfig({ graphicsQuality: quality })}
-                    className={`py-2.5 rounded-lg text-xs font-bold capitalize border transition-all ${
-                      config.graphicsQuality === quality 
-                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-sm' 
-                        : 'bg-stone-950/60 border-stone-800 text-stone-500 hover:border-stone-700'
-                    }`}
-                  >
-                    {quality === 'low' ? 'Low (60 FPS)' : quality === 'medium' ? 'Medium (Balanced)' : 'High (Ultra Shadows)'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Audio Volume synthesizer preview */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-[11px] uppercase tracking-wider text-stone-400 font-bold flex items-center gap-1">
-                  <Volume2 className="w-3 h-3 text-amber-400" />
-                  <span>Synthesized Web Audio Volume</span>
-                </label>
-                <span className="text-xs font-mono text-amber-300">{soundVolume}%</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="100" 
-                value={soundVolume}
-                onChange={(e) => setSoundVolume(parseInt(e.target.value))}
-                className="w-full accent-amber-400 bg-stone-950 h-2 rounded-lg cursor-pointer"
-              />
-              <p className="text-[10px] text-stone-500 mt-1">
-                Pure algorithmic synthesized ambient forest wind, rain ripples, and crackling logs.
-              </p>
-            </div>
-
-            {/* Cinematic Day cycle speed */}
-            <div>
-              <label className="block text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1">
-                Day / Night Cycle Speed
-              </label>
-              <div className="flex gap-2">
-                {[0.5, 1.0, 2.0].map((spd) => (
-                  <button
-                    key={spd}
-                    onClick={() => onUpdateConfig({ daySpeed: spd })}
-                    className={`flex-1 py-1.5 rounded-md text-xs font-mono border ${
-                      config.daySpeed === spd 
-                        ? 'bg-stone-800 border-stone-400 text-stone-200' 
-                        : 'bg-stone-950 border-stone-900 text-stone-600'
-                    }`}
-                  >
-                    {spd}x Speed
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
-
-          {/* Gorgeous Big Launch Button */}
-          <button
-            onClick={onStartGame}
-            className="w-full mt-6 bg-gradient-to-r from-emerald-600 via-emerald-500 to-amber-600 hover:from-emerald-500 hover:to-amber-500 text-stone-950 font-black text-lg py-4 rounded-xl shadow-xl shadow-emerald-950/50 flex items-center justify-center gap-3 active:scale-[0.98] transition-all cursor-pointer"
-          >
-            <Play className="w-6 h-6 fill-stone-950" />
-            <span>ENTER THE WILDERNESS</span>
-          </button>
         </div>
 
-      </div>
-
-      {/* Bottom Aesthetic Footer */}
-      <div className="w-full max-w-4xl mx-auto text-center border-t border-stone-800 pt-3 text-[11px] text-stone-500 flex flex-col md:flex-row justify-between items-center gap-2 pb-6 md:pb-2">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1">
-            <Flame className="w-3 h-3 text-amber-500" /> Warm Orange Fire Glow
-          </span>
-          <span>•</span>
-          <span>Atmospheric Perspective</span>
-          <span>•</span>
-          <span>3D Third-Person Camera</span>
-        </div>
-        <div>
-          <span>Designed with absolute mobile safeties • Fully Custom Stylized Geometries</span>
-        </div>
       </div>
     </div>
   );

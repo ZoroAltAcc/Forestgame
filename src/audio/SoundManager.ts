@@ -252,114 +252,14 @@ export class SoundManager {
     osc.stop(this.ctx.currentTime + 0.1);
   }
 
-  public playCraft() {
+  public playStep(wet: boolean) {
     if (!this.initialized || !this.ctx || !this.sfxGain) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-    osc.frequency.setValueAtTime(660, this.ctx.currentTime + 0.1);
-    osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.2);
-    
-    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.35);
-    
-    osc.connect(gain);
-    gain.connect(this.sfxGain);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.4);
-  }
-
-  public playAnimalHurt() {
-    if (!this.initialized || !this.ctx || !this.sfxGain) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(150, this.ctx.currentTime + 0.25);
-    
-    gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.25);
-    
-    osc.connect(gain);
-    gain.connect(this.sfxGain);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.3);
-  }
-
-  public playZombieAlert() {
-    if (!this.initialized || !this.ctx || !this.sfxGain) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(90, this.ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(60, this.ctx.currentTime + 0.5);
-    
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 400;
-
-    gain.gain.setValueAtTime(0.7, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
-    
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.sfxGain);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.55);
-  }
-
-  public playPlayerHit() {
-    if (!this.initialized || !this.ctx || !this.sfxGain) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(120, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.15);
-    
-    gain.gain.setValueAtTime(0.8, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.15);
-    
-    osc.connect(gain);
-    gain.connect(this.sfxGain);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.2);
-  }
-
-  public playSizzle() {
-    if (!this.initialized || !this.ctx || !this.sfxGain) return;
-    // Short pink noise burst for cooking meat sizzle
-    const buffer = this.createNoiseBuffer(0.5, 'white');
-    if (!buffer) return;
-    const source = this.ctx.createBufferSource();
-    source.buffer = buffer;
-    
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 2500;
-    
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
-    
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.sfxGain);
-    source.start();
-  }
-
-  public playStep(isWet: boolean) {
-    if (!this.initialized || !this.ctx || !this.sfxGain) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(isWet ? 140 : 85, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.05);
+    osc.type = wet ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(wet ? 200 : 100, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(wet ? 80 : 50, this.ctx.currentTime + 0.05);
     
     gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.05);
@@ -368,22 +268,127 @@ export class SoundManager {
     gain.connect(this.sfxGain);
     osc.start();
     osc.stop(this.ctx.currentTime + 0.06);
+  }
 
-    // Play puddle slap if heavy rain wet ground
-    if (isWet && Math.random() > 0.4) {
-      const oscWet = this.ctx.createOscillator();
-      const gainWet = this.ctx.createGain();
-      oscWet.type = 'triangle';
-      oscWet.frequency.setValueAtTime(600, this.ctx.currentTime);
-      oscWet.frequency.linearRampToValueAtTime(200, this.ctx.currentTime + 0.04);
-      gainWet.gain.setValueAtTime(0.08, this.ctx.currentTime);
-      gainWet.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.04);
-      oscWet.connect(gainWet);
-      gainWet.connect(this.sfxGain);
-      oscWet.start();
-      oscWet.stop(this.ctx.currentTime + 0.05);
+  public playCraft() {
+    if (!this.initialized || !this.ctx || !this.sfxGain) return;
+    // Pleasant crafting completion chime
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(660, this.ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.2);
+    
+    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.35);
+    
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.4);
+  }
+
+  public playSizzle() {
+    if (!this.initialized || !this.ctx || !this.sfxGain) return;
+    // White noise burst for cooking sizzle
+    const bufferSize = this.ctx.sampleRate * 0.3;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
     }
+    
+    const source = this.ctx.createBufferSource();
+    source.buffer = buffer;
+    
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 3000;
+    
+    const gain = this.ctx.createGain();
+    gain.gain.value = 0.3;
+    
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.sfxGain);
+    source.start();
+  }
+
+  public playZombieAlert() {
+    if (!this.initialized || !this.ctx || !this.sfxGain) return;
+    // Ominous low frequency drone
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(60, this.ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.8);
+    
+    gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.8);
+    
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.9);
+  }
+
+  public playAnimalHurt() {
+    if (!this.initialized || !this.ctx || !this.sfxGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.15);
+    
+    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.15);
+    
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.2);
+  }
+
+  public playPickup() {
+    if (!this.initialized || !this.ctx || !this.sfxGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
+    
+    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.1);
+    
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.12);
+  }
+
+  public playHurt() {
+    if (!this.initialized || !this.ctx || !this.sfxGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.2);
+    
+    gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
+    
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.25);
   }
 }
 
+// Global singleton instance
 export const sounds = new SoundManager();

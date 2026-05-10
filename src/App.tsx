@@ -25,12 +25,14 @@ export default function App() {
   const [alertMsg, setAlertMsg] = useState("Welcome to CozyWood. Break trees to craft tools!");
   
   const [inventory, setInventory] = useState<InventoryState>({
-    wood: 5,
-    stone: 3,
-    rawMeat: 1,
+    wood: 8,
+    stone: 5,
+    rawMeat: 0,
     cookedMeat: 0,
+    carrot: 0,
     axe: false,
     pickaxe: false,
+    workbench: false,
     furnaceCount: 0,
     campfireCount: 0,
   });
